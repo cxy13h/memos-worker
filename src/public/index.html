@@ -7111,17 +7111,39 @@
 
 	function autoResizeTextarea(textarea) {
 		requestAnimationFrame(() => {
-			// 1. 保存当前的滚动位置。这对于长文本非常重要，
-			//    可以防止在调整高度时页面发生不必要的跳动。
+			// 1. 获取包含该 textarea 的外层容器 (例如 .note)
+			const container = textarea.closest('.note');
+			let originalMinHeight = '';
+
+			// 2. 如果找到了容器，暂时锁定它的最小高度，防止高度坍塌导致页面跳动
+			if (container) {
+				originalMinHeight = container.style.minHeight;
+				container.style.minHeight = `${container.getBoundingClientRect().height}px`;
+			}
+
+			// 3. 保存当前的滚动位置。
 			const savedScrollTop = textarea.scrollTop;
-			// 2. 先将高度重置为'auto'，让浏览器计算出内容所需的最小高度。
-			//    这是获取正确 scrollHeight 的关键步骤。
+
+			// 4. 重置高度为'auto'来获取正确的 scrollHeight。
 			textarea.style.height = 'auto';
 			if (textarea.scrollHeight !== 0) {
-				textarea.style.height = `${textarea.scrollHeight + 2}px`;
+				// 获取 border 宽度 (上下边框通常是 2px)
+				const style = window.getComputedStyle(textarea);
+				const borderTop = parseFloat(style.borderTopWidth) || 0;
+				const borderBottom = parseFloat(style.borderBottomWidth) || 0;
+				textarea.style.height = `${textarea.scrollHeight + borderTop + borderBottom}px`;
 			}
-			// 4. 恢复之前保存的滚动位置，确保用户视口保持稳定。
+
+			// 5. 恢复滚动位置。
 			textarea.scrollTop = savedScrollTop;
+
+			// 6. 恢复容器的最小高度，并更新瀑布流布局
+			if (container) {
+				container.style.minHeight = originalMinHeight;
+				if (appState.isWaterfall) {
+					setNoteRowSpan(container);
+				}
+			}
 		});
 	}
 
