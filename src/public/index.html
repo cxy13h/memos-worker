@@ -6414,6 +6414,7 @@
 		editorContentArea.dataset.viewMode = defaultView;
 		fullscreenEditorOverlay.classList.add('visible');
 		fullscreenEditorBox.classList.add('active');
+		document.body.style.overflow = 'hidden';
 		isFullscreenMode = true;
 		fsEditorTextarea.focus();
 	}
@@ -6422,6 +6423,7 @@
 	function closeFullscreenEditor() {
 		fullscreenEditorOverlay.classList.remove('visible');
 		fullscreenEditorBox.classList.remove('active');
+		document.body.style.overflow = '';
 		isFullscreenMode = false;
 		currentEditingNoteId = null;
 	}
